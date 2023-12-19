@@ -1,6 +1,5 @@
 import { Separator } from "@/components/ui"
-import { CardsStatsWrapper, CreateForm } from "@/features/dashboard"
-import "@radix-ui/themes/styles.css"
+import { CardsStatsWrapper, CreateForm, FormCards } from "@/features/dashboard"
 
 export default async function Index() {
   return (
@@ -11,7 +10,10 @@ export default async function Index() {
         Your forms
       </h1>
       <Separator className="my-6" />
-      <CreateForm />
+      <div className="grid gric-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CreateForm />
+        <FormCards />
+      </div>
     </div>
   )
 }
