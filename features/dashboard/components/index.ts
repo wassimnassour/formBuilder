@@ -1,2 +1,2 @@
-export * from "./CardsStatsWrapper"
-export * from "./CreateForm"
+export * from "./cardsStatsWrapper"
+export * from "./createForm"

@@ -1,1 +1,1 @@
-export * from "./chakraProviders"
+export * from "./themeProvider"

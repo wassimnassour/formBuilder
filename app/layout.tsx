@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
-import { ChakraProviders } from "@/components/providers"
+import { ThemeProvider } from "@/components/providers"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -19,21 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn(inter.className, "bg-[#030712]  text-white ")}>
-        <Logo />
-        <ChakraProviders>{children}</ChakraProviders>
+        <Toaster /> <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )
 }
-
-const Logo = () => (
-  <div className="border-b border-b-gray-700  justify-between text-white  ">
-    <div className="flex max-w-6xl mx-auto py-6 justify-between ">
-      <h1>Formy</h1>
-      <div>
-        {/* #TODO: User icon here and Drop Down  */}
-        <div className="bg-blue-400 rounded-full border  w-6  h-6" />
-      </div>
-    </div>
-  </div>
-)

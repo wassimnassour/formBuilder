@@ -8,7 +8,7 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("rounded-xl border bg-card  shadow border-none", className)}
+    className={cn("rounded-xl   text-card-foreground shadow", className)}
     {...props}
   />
 ))

@@ -1,6 +1,5 @@
-import { Skeleton } from "@chakra-ui/react"
 import React, { ReactNode } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const CardsStatsWrapper = () => {
   return (
@@ -10,14 +9,14 @@ export const CardsStatsWrapper = () => {
         helperText="Visits that result in form submission"
         value={44 + "%" || ""}
         loading={false}
-        className="shadow-md shadow-blue-600 w-full  mt-4"
+        className="shadow-md shadow-blue-600   mt-4"
       />
       <StatsCard
         title="Total Submissions"
         helperText="Visits that result in form submission"
         value={34 + "%" || ""}
         loading={false}
-        className="shadow-md shadow-green-600 w-full  mt-4"
+        className="shadow-md shadow-green-600   mt-4"
       />
       <StatsCard
         title="Bounce Rates"
@@ -63,9 +62,9 @@ export function StatsCard({
       <CardContent>
         <div className="text-2xl font-bold ">
           {loading && (
-            <Skeleton>
-              <span className="opacity-0">0</span>
-            </Skeleton>
+            // <Skeleton>
+            <span className="opacity-0">0</span>
+            // </Skeleton>
           )}
           {!loading && value}
         </div>
