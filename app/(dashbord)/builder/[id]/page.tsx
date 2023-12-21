@@ -1,5 +1,6 @@
 "use client"
 
+import DesignerContextProvider from "@/context/designerContext"
 import { FormBuilder } from "@/features/builder/components"
 import { DndContext } from "@dnd-kit/core"
 
@@ -20,7 +21,9 @@ async function BuilderPage({
 
   return (
     <DndContext>
-      <FormBuilder form={form} />
+      <DesignerContextProvider>
+        <FormBuilder form={form} />
+      </DesignerContextProvider>
     </DndContext>
   )
 }

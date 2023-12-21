@@ -17,7 +17,7 @@ export type ElementsType =
 export type FormElementInstance = {
   id: string
   type: ElementsType
-  extraAttributes?: Record<string, string>
+  extraAttributes?: Record<string, any>
 }
 
 export type FormElement = {
@@ -39,7 +39,7 @@ export type FormElement = {
 }
 
 type FormElementsType = {
-  [key in ElementsType]?: FormElement
+  [key in ElementsType]: FormElement
 }
 
 export const FormElements: FormElementsType = {
