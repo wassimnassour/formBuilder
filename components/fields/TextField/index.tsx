@@ -1,8 +1,8 @@
 "use client"
 import { MdTextFields } from "react-icons/md"
-import { FormElement, FormElementInstance } from "@/components/FormElements"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui"
+import { FormElement, FormElementInstance } from "@/types/FormElements"
 
 const extraAttributes = {
   label: "Text field",

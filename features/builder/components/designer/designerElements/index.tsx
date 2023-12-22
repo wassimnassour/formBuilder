@@ -11,7 +11,7 @@ import { useDndMonitor, useDraggable, useDroppable } from "@dnd-kit/core"
 import { ElementsType, FormElementInstance } from "@/types/FormElements"
 
 export function DesignerElements() {
-  const { addElement, elements } = useDesigner()
+  const { addElement, removeElement, elements } = useDesigner()
 
   const droppable = useDroppable({
     id: "Designer-drop-area",
@@ -24,6 +24,7 @@ export function DesignerElements() {
     onDragEnd: (event) => {
       if (!event.active || !event.over) return
 
+      // First scenario: Dropping over the designer area.
       const isDesignerBtnElement =
         event.active.data.current?.isDesignerBtnElement
       const isDroppingOverDesignerDropArea =
@@ -36,6 +37,57 @@ export function DesignerElements() {
         const type = event.active.data?.current?.type
         const newElement = FormElements[type as ElementsType].construct(id)
         addElement(elements.length, newElement)
+      }
+
+      // Second scenario: Dropping over Top area or Bottom Area of Designer element
+      const isDroppingOverTopHalfDesignerElement =
+        event.over.data?.current?.isTopHalfDesignerElement
+      const isDroppingOverBottomHalfDesignerElement =
+        event.over.data?.current?.isBottomHalfDesignerElement
+
+      const isDroppingOverDesignerElement =
+        isDroppingOverTopHalfDesignerElement ||
+        isDroppingOverBottomHalfDesignerElement
+
+      if (isDesignerBtnElement && isDroppingOverDesignerElement) {
+        const newElement = FormElements[
+          event.active.data?.current?.type as ElementsType
+        ].construct(generateRandomId())
+
+        const overId = event.over?.data?.current?.id
+        const elementIndex = elements?.findIndex((_el) => _el.id === overId)
+
+        if (isDroppingOverTopHalfDesignerElement) {
+          addElement(elementIndex - 1, newElement)
+        } else {
+          addElement(elementIndex + 1, newElement)
+        }
+      }
+
+      const isDesignerElementOverAnotherDesignerElement =
+        isDroppingOverDesignerElement &&
+        (isDroppingOverTopHalfDesignerElement ||
+          isDroppingOverBottomHalfDesignerElement)
+
+      if (isDesignerElementOverAnotherDesignerElement) {
+        const activeId = event.active.data.current?.id
+        const overId = event.over?.data?.current?.id
+
+        const activeElementIndex = elements?.findIndex(
+          (_el) => _el.id === activeId
+        )
+
+        const elementOverIndex = elements?.findIndex((_el) => _el.id === overId)
+
+        const activeElement = Object.assign({}, elements[activeElementIndex])
+
+        removeElement(activeId)
+
+        if (isDroppingOverTopHalfDesignerElement) {
+          addElement(elementOverIndex, activeElement)
+        } else {
+          addElement(elementOverIndex + 1, activeElement)
+        }
       }
     },
   })
@@ -65,6 +117,24 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
   const [mouseIsOver, setMouseIsOver] = useState(false)
   const DesignerElement = FormElements[element.type].designerComponent
 
+  const topHalf = useDroppable({
+    id: "top-half" + element.id,
+    data: {
+      id: element.id,
+      type: element.type,
+      isTopHalfDesignerElement: true,
+    },
+  })
+
+  const bottomHalf = useDroppable({
+    id: "bottom-half" + element.id,
+    data: {
+      id: element.id,
+      type: element.type,
+      isBottomHalfDesignerElement: true,
+    },
+  })
+
   const draggable = useDraggable({
     id: element.id + "-drag-element-handler",
     data: {
@@ -73,12 +143,13 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
       isDesignerElement: true,
     },
   })
+
   return (
     <div
       ref={draggable.setNodeRef}
       {...draggable.attributes}
       {...draggable.listeners}
-      className="relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
+      className="relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md overflow-hidden ring-1 ring-accent ring-inset"
       onMouseEnter={() => {
         setMouseIsOver(true)
       }}
@@ -89,6 +160,17 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
         e.stopPropagation()
       }}
     >
+      {/* Top Half */}
+      <div
+        ref={topHalf.setNodeRef}
+        className=" absolute top-0 left-0 right-0 h-1/2 w-full"
+      />
+
+      {/* Bottom Half */}
+      <div
+        ref={bottomHalf.setNodeRef}
+        className="absolute bottom-0 left-0 right-0 h-1/2 w-full"
+      />
       {mouseIsOver && (
         <>
           <div className="absolute right-0 h-full">
@@ -111,6 +193,10 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
         </>
       )}
 
+      {topHalf.isOver && (
+        <div className="absolute top-0 w-full rounded-md h-[7px] bg-primary rounded-b-none" />
+      )}
+
       <div
         className={cn(
           "flex w-full h-[120px] items-center rounded-md bg-accent/40 px-4 py-2 pointer-events-none opacity-100",
@@ -119,6 +205,9 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
       >
         <DesignerElement elementInstance={element} />
       </div>
+      {bottomHalf.isOver && (
+        <div className="absolute bottom-0 w-full rounded-md h-[7px] bg-primary rounded-t-none" />
+      )}
     </div>
   )
 }

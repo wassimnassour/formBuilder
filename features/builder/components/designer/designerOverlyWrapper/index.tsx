@@ -22,7 +22,6 @@ export function DesignerBtnOverlyWrapper() {
   if (active?.data?.current?.isDesignerBtnElement) {
     const element = FormElements[active.data.current.type as ElementsType]
     node = <SideBarBtnElementOverly element={element} />
-    return
   }
 
   if (active?.data?.current?.isDesignerElement) {
