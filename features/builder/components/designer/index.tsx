@@ -1,6 +1,6 @@
 import { DesignerElements } from "./designerElements"
 import DesignerSideBar from "./designerSideBar"
-import { DesignerBtnOverlyWrapper } from "./designerBtnOverlyWrapper"
+import { DesignerBtnOverlyWrapper } from "./designerOverlyWrapper"
 
 export function Designer() {
   return (

@@ -1,16 +1,15 @@
 "use client"
 
-import {
-  ElementsType,
-  FormElementInstance,
-  FormElements,
-} from "@/components/FormElements"
+import { useState } from "react"
+import { BiSolidTrash } from "react-icons/bi"
+import { FormElements } from "@/components/FormElements"
 import { Button } from "@/components/ui"
 import useDesigner from "@/hooks/useDesigner"
 import { cn } from "@/lib/utils"
-import { useDndMonitor, useDroppable } from "@dnd-kit/core"
-import { useId, useState } from "react"
-import { BiSolidTrash } from "react-icons/bi"
+import { generateRandomId } from "@/lib/utils/generateRandomId"
+import { useDndMonitor, useDraggable, useDroppable } from "@dnd-kit/core"
+import { ElementsType, FormElementInstance } from "@/types/FormElements"
+
 export function DesignerElements() {
   const { addElement, elements } = useDesigner()
 
@@ -31,19 +30,10 @@ export function DesignerElements() {
         event?.over?.data?.current?.isDesignerDropArea
       const designerBtnElementDroppingOverDropArea =
         isDesignerBtnElement && isDroppingOverDesignerDropArea
-      console.log("    event?.over?", event)
-      console.log(
-        "isDesignerBtnElement:",
-        isDesignerBtnElement,
-        "isDesignerDropArea",
-        isDroppingOverDesignerDropArea,
-        "designerBtnElementDroppingOverDropArea",
-        designerBtnElementDroppingOverDropArea
-      )
-      if (designerBtnElementDroppingOverDropArea) {
-        const type = event.active.data?.current?.type
 
-        const id = useId()
+      if (designerBtnElementDroppingOverDropArea) {
+        const id = generateRandomId()
+        const type = event.active.data?.current?.type
         const newElement = FormElements[type as ElementsType].construct(id)
         addElement(elements.length, newElement)
       }
@@ -75,8 +65,19 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
   const [mouseIsOver, setMouseIsOver] = useState(false)
   const DesignerElement = FormElements[element.type].designerComponent
 
+  const draggable = useDraggable({
+    id: element.id + "-drag-element-handler",
+    data: {
+      type: element.type,
+      id: element.id,
+      isDesignerElement: true,
+    },
+  })
   return (
     <div
+      ref={draggable.setNodeRef}
+      {...draggable.attributes}
+      {...draggable.listeners}
       className="relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
       onMouseEnter={() => {
         setMouseIsOver(true)
