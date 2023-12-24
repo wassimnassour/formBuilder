@@ -11,7 +11,13 @@ import { useDndMonitor, useDraggable, useDroppable } from "@dnd-kit/core"
 import { ElementsType, FormElementInstance } from "@/types/FormElements"
 
 export function DesignerElements() {
-  const { addElement, removeElement, elements } = useDesigner()
+  const {
+    addElement,
+    removeElement,
+    setSelectedElement,
+    selectedElement,
+    elements,
+  } = useDesigner()
 
   const droppable = useDroppable({
     id: "Designer-drop-area",
@@ -93,7 +99,13 @@ export function DesignerElements() {
   })
 
   return (
-    <div className="w-full p-3" ref={droppable.setNodeRef}>
+    <div
+      className="w-full p-3"
+      ref={droppable.setNodeRef}
+      onClick={() => {
+        if (selectedElement) setSelectedElement(null)
+      }}
+    >
       <div className="bg-background w-full h-full m-auto rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto">
         {elements?.length == 0 && (
           <div className="flex flex-grow items-center justify-center ">
@@ -113,8 +125,9 @@ export function DesignerElements() {
 }
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-  const { removeElement } = useDesigner()
+  const { removeElement, selectedElement, setSelectedElement } = useDesigner()
   const [mouseIsOver, setMouseIsOver] = useState(false)
+  console.log("element", element)
   const DesignerElement = FormElements[element.type].designerComponent
 
   const topHalf = useDroppable({
@@ -144,6 +157,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
     },
   })
 
+  if (draggable.isDragging) return
   return (
     <div
       ref={draggable.setNodeRef}
@@ -158,6 +172,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
       }}
       onClick={(e) => {
         e.stopPropagation()
+        setSelectedElement(element)
       }}
     >
       {/* Top Half */}

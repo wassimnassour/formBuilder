@@ -1,13 +1,24 @@
 "use client"
 import { Button, Separator } from "@/components/ui"
-import { FormElement, FormElements } from "@/components/FormElements"
+import { FormElements } from "@/components/FormElements"
 import { cn } from "@/lib/utils"
 import { useDraggable } from "@dnd-kit/core"
+import useDesigner from "@/hooks/useDesigner"
+import { FormElement } from "@/types/FormElements"
+import { Designer } from ".."
+import DesignerPropertiesElement from "../designerPropertiesElement"
 
 export default function DesignerSideBar() {
+  const { selectedElement } = useDesigner()
+
+  console.log("selectedElement", selectedElement)
   return (
     <aside className="w-[400px] max-w-[400px] flex flex-col flex-grow gap-2 border-l-2 border-muted p-4 bg-background overflow-y-auto h-full">
-      <SideBarDesignerElement />
+      {selectedElement ? (
+        <DesignerPropertiesElement />
+      ) : (
+        <SideBarDesignerElement />
+      )}
     </aside>
   )
 }

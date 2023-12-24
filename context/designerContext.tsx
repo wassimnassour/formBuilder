@@ -1,6 +1,6 @@
 "use client"
 
-import { FormElementInstance } from "@/components/FormElements"
+import { FormElementInstance } from "@/types/FormElements"
 import {
   Dispatch,
   ReactNode,
