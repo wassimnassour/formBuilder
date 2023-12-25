@@ -1,3 +1,5 @@
+import React from "react"
+
 export type ElementsType =
   | "TextField"
   | "TitleField"
@@ -17,6 +19,8 @@ export type FormElementInstance = {
   extraAttributes?: Record<string, any>
 }
 
+export type SubmitFunction = (key: string, value: string) => void
+
 export type FormElement = {
   type: ElementsType
 
@@ -33,6 +37,9 @@ export type FormElement = {
   designerComponent: React.FC<{
     elementInstance: FormElementInstance
   }>
+
+  formComponent: React.FC<{ elementInstance: FormElementInstance }>
+  validate: (formELement: FormElementInstance, currentValue: string) => boolean
 }
 
 type FormElementsType = {
