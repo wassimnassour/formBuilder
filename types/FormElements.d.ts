@@ -39,7 +39,6 @@ export type FormElement = {
   }>
 
   formComponent: React.FC<{ elementInstance: FormElementInstance }>
-  validate: (formELement: FormElementInstance, currentValue: string) => boolean
 }
 
 type FormElementsType = {

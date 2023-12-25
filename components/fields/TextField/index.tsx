@@ -20,7 +20,7 @@ import useDesigner from "@/hooks/useDesigner"
 import { z } from "zod"
 import { Switch } from "@radix-ui/themes"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useFormContext } from "react-hook-form"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -45,14 +45,6 @@ export const TextField: FormElement = {
     type: "TextField",
     extraAttributes,
   }),
-  validate: (formElement, currentValue) => {
-    const element = formElement as CustomInstance
-
-    if (element.extraAttributes.required) {
-      return currentValue.length >= 1
-    }
-    return false
-  },
 }
 type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes
@@ -61,23 +53,16 @@ type CustomInstance = FormElementInstance & {
 // ----------------------------------------
 function FormComponent({
   elementInstance,
-  submitValue,
-  isInvalid,
   defaultValue,
 }: {
   elementInstance: FormElementInstance
-  submitValue?: SubmitFunction
-  isInvalid?: boolean
   defaultValue?: string
 }) {
   const element = elementInstance as CustomInstance
 
-  const [value, setValue] = useState(defaultValue || "")
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    setError(isInvalid === true)
-  }, [isInvalid])
+  const formId = element.id
+  const methods = useFormContext()
+  const error = methods.formState.errors[formId]
 
   const { label, required, placeHolder, helperText } = element.extraAttributes
   return (
@@ -89,15 +74,14 @@ function FormComponent({
       <Input
         className={cn(error && "border-red-500")}
         placeholder={placeHolder}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => {
-          if (!submitValue) return
-          const valid = TextField.validate(element, e.target.value)
-          setError(!valid)
-          if (!valid) return
-          submitValue(element.id, e.target.value)
-        }}
-        value={value}
+        {...methods.register(formId, {
+          validate: (currentValue) => {
+            if (element.extraAttributes.required && currentValue.length == 0) {
+              return "this field is required"
+            }
+            return true
+          },
+        })}
       />
       {helperText && (
         <p
