@@ -64,12 +64,13 @@ export function DesignerElements() {
         const elementIndex = elements?.findIndex((_el) => _el.id === overId)
 
         if (isDroppingOverTopHalfDesignerElement) {
-          addElement(elementIndex - 1, newElement)
+          return addElement(elementIndex, newElement)
         } else {
           addElement(elementIndex + 1, newElement)
         }
       }
 
+      // thired senario
       const isDesignerElementOverAnotherDesignerElement =
         isDroppingOverDesignerElement &&
         (isDroppingOverTopHalfDesignerElement ||
@@ -125,10 +126,9 @@ export function DesignerElements() {
 }
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-  const { removeElement, selectedElement, setSelectedElement } = useDesigner()
+  const { removeElement, setSelectedElement } = useDesigner()
   const [mouseIsOver, setMouseIsOver] = useState(false)
-  console.log("element", element)
-  const DesignerElement = FormElements[element.type].designerComponent
+  const DesignerElement = FormElements[element.type]?.designerComponent
 
   const topHalf = useDroppable({
     id: "top-half" + element.id,
