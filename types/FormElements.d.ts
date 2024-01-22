@@ -8,7 +8,6 @@ export type ElementsType =
   | "SeparatorField"
   | "SpacerField"
   | "NumberField"
-  | "TextAreaField"
   | "DateField"
   | "SelectField"
   | "CheckboxField"

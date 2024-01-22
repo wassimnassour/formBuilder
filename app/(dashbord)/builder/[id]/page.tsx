@@ -10,7 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core"
 
-async function BuilderPage({
+function BuilderPage({
   params,
 }: {
   params: {

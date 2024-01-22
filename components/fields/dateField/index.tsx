@@ -110,6 +110,7 @@ function FormComponent({
 
   const date = new Date(methods.watch(formId))
 
+  console.log("date", methods.watch(formId), date)
   const { label, required, placeHolder, helperText } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -128,7 +129,11 @@ function FormComponent({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {methods.watch(formId) ? (
+              format(date, "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

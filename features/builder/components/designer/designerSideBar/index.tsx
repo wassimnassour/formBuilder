@@ -11,7 +11,6 @@ import DesignerPropertiesElement from "../designerPropertiesElement"
 export default function DesignerSideBar() {
   const { selectedElement } = useDesigner()
 
-  console.log("selectedElement", selectedElement)
   return (
     <aside className="w-[400px] max-w-[400px] flex flex-col flex-grow gap-2 border-l-2 border-muted p-4 bg-background overflow-y-auto h-full">
       {selectedElement ? (
@@ -32,15 +31,19 @@ function SideBarDesignerElement() {
         <p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
           Layout elements
         </p>
+        <SideBarBtnElement element={FormElements.SelectField} />
+        <SideBarBtnElement element={FormElements.SpacerField} />
+        <SideBarBtnElement element={FormElements.SeparatorField} />
+
+        <p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
+          Form elements
+        </p>
         <SideBarBtnElement element={FormElements.TextField} />
         <SideBarBtnElement element={FormElements.TitleField} />
         <SideBarBtnElement element={FormElements.SubTitleField} />
         <SideBarBtnElement element={FormElements.NumberField} />
         <SideBarBtnElement element={FormElements.CheckboxField} />
         <SideBarBtnElement element={FormElements.ParagraphField} />
-        <SideBarBtnElement element={FormElements.SelectField} />
-        <SideBarBtnElement element={FormElements.SpacerField} />
-        <SideBarBtnElement element={FormElements.SeparatorField} />
         <SideBarBtnElement element={FormElements.DateField} />
       </div>
     </div>
