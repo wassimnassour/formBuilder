@@ -1,6 +1,25 @@
 "use client"
-import { MdTextFields } from "react-icons/md"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect } from "react"
+import { useForm, useFormContext } from "react-hook-form"
+import { format } from "date-fns"
+import { z } from "zod"
+import { CalendarIcon } from "@radix-ui/react-icons"
+import { BsFillCalendarDateFill } from "react-icons/bs"
+
+import {
+  ElementsType,
+  FormElement,
+  FormElementInstance,
+} from "@/types/FormElements"
+import useDesigner from "@/hooks/useDesigner"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Form,
   FormControl,
@@ -9,47 +28,75 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Label,
-} from "@/components/ui"
+} from "@/components/ui/form"
 import {
-  FormElement,
-  FormElementInstance,
-} from "@/types/FormElements"
-import useDesigner from "@/hooks/useDesigner"
-import { z } from "zod"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Switch } from "@radix-ui/themes"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFormContext } from "react-hook-form"
-import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
+
+const type: ElementsType = "DateField"
 
 const extraAttributes = {
-  label: "Text field",
-  helperText: "Helper text",
+  label: "Date field",
+  helperText: "Pick a date",
   required: false,
-  placeHolder: "Value here...",
 }
 
-export const TextField: FormElement = {
-  type: "TextField",
-  designerBtnElement: {
-    label: "TextField",
-    icon: MdTextFields,
-  },
-  designerComponent: DesignerComponent,
-  propertiesElement: PropertiesComponent,
-  formComponent: FormComponent,
+const propertiesSchema = z.object({
+  label: z.string().min(2).max(50),
+  helperText: z.string().max(200),
+  required: z.boolean().default(false),
+})
+
+export const DateFieldFormElement: FormElement = {
+  type,
   construct: (id: string) => ({
     id,
-    type: "TextField",
+    type,
     extraAttributes,
   }),
+  designerBtnElement: {
+    icon: BsFillCalendarDateFill,
+    label: "Date Field",
+  },
+  designerComponent: DesignerComponent,
+  formComponent: FormComponent,
+  propertiesElement: PropertiesComponent,
 }
+
 type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes
 }
 
-// ----------------------------------------
+function DesignerComponent({
+  elementInstance,
+}: {
+  elementInstance: FormElementInstance
+}) {
+  const element = elementInstance as CustomInstance
+  const { label, required, placeHolder, helperText } = element.extraAttributes
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label>
+        {label}
+        {required && "*"}
+      </Label>
+      <Button
+        variant={"outline"}
+        className="w-full justify-start text-left font-normal"
+      >
+        <CalendarIcon className="mr-2 h-4 w-4" />
+        <span>Pick a date</span>
+      </Button>
+      {helperText && (
+        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+      )}
+    </div>
+  )
+}
+
 function FormComponent({
   elementInstance,
 }: {
@@ -61,6 +108,9 @@ function FormComponent({
   const methods = useFormContext()
   const error = methods.formState.errors[formId]
 
+  const date = new Date(methods.watch(formId))
+
+  console.log("date", methods.watch(formId), date)
   const { label, required, placeHolder, helperText } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -68,18 +118,35 @@ function FormComponent({
         {label}
         {required && "*"}
       </Label>
-      <Input
-        className={cn(error && "border-red-500")}
-        placeholder={placeHolder}
-        {...methods.register(formId, {
-          validate: (currentValue) => {
-            if (element.extraAttributes.required && currentValue.length == 0) {
-              return "this field is required"
-            }
-            return true
-          },
-        })}
-      />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+              error && "border-red-500"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {methods.watch(formId) ? (
+              format(date, "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(date) => {
+              methods.setValue(formId, date)
+            }}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
       {helperText && (
         <p
           className={cn(
@@ -94,40 +161,7 @@ function FormComponent({
   )
 }
 
-// -----------------------------------------
-
-function DesignerComponent({
-  elementInstance,
-}: {
-  elementInstance: FormElementInstance
-}) {
-  const {
-    extraAttributes: { helperText, required, label, placeHolder },
-  } = elementInstance as CustomInstance
-
-  return (
-    <div className="flex flex-col gap-2 w-full ">
-      <Label>
-        {label}
-        {required && "*"}
-      </Label>
-      <Input readOnly disabled placeholder={placeHolder} />
-      {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
-      )}
-    </div>
-  )
-}
-
-const propertiesSchema = z.object({
-  label: z.string().min(2).max(50),
-  helperText: z.string().max(200),
-  required: z.boolean().default(false),
-  placeHolder: z.string().max(50),
-})
-
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>
-
 function PropertiesComponent({
   elementInstance,
 }: {
@@ -142,7 +176,6 @@ function PropertiesComponent({
       label: element.extraAttributes.label,
       helperText: element.extraAttributes.helperText,
       required: element.extraAttributes.required,
-      placeHolder: element.extraAttributes.placeHolder,
     },
   })
 
@@ -151,20 +184,20 @@ function PropertiesComponent({
   }, [element, form])
 
   function applyChanges(values: propertiesFormSchemaType) {
-    const { label, helperText, placeHolder, required } = values
+    const { label, helperText, required } = values
     updateElement(element.id, {
       ...element,
       extraAttributes: {
         label,
         helperText,
-        placeHolder,
         required,
       },
     })
   }
 
   return (
-    <Form {...form}>
+    <>
+      {/* <Form {...form}> */}
       <form
         onBlur={form.handleSubmit(applyChanges)}
         onSubmit={(e) => {
@@ -190,25 +223,6 @@ function PropertiesComponent({
                 The label of the field. <br /> It will be displayed above the
                 field
               </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="placeHolder"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>PlaceHolder</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur()
-                  }}
-                />
-              </FormControl>
-              <FormDescription>The placeholder of the field.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -248,6 +262,8 @@ function PropertiesComponent({
                 </FormDescription>
               </div>
               <FormControl>
+                {" "}
+                d
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
@@ -258,6 +274,7 @@ function PropertiesComponent({
           )}
         />
       </form>
-    </Form>
+      {/* </Form> */}
+    </>
   )
 }

@@ -1,6 +1,21 @@
 "use client"
-import { MdTextFields } from "react-icons/md"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect, useState } from "react"
+import { useForm, useFormContext } from "react-hook-form"
+import { z } from "zod"
+import {
+  ElementsType,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "@/types/FormElements"
+import useDesigner from "@/hooks/useDesigner"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+import { cn } from "@/lib/utils"
+import { Bs123 } from "react-icons/bs"
 import {
   Form,
   FormControl,
@@ -9,51 +24,73 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Label,
-} from "@/components/ui"
-import {
-  FormElement,
-  FormElementInstance,
-} from "@/types/FormElements"
-import useDesigner from "@/hooks/useDesigner"
-import { z } from "zod"
+} from "@/components/ui/form"
 import { Switch } from "@radix-ui/themes"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFormContext } from "react-hook-form"
-import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
+
+const type: ElementsType = "NumberField"
 
 const extraAttributes = {
-  label: "Text field",
+  label: "Number field",
   helperText: "Helper text",
   required: false,
-  placeHolder: "Value here...",
+  placeHolder: "0",
 }
 
-export const TextField: FormElement = {
-  type: "TextField",
-  designerBtnElement: {
-    label: "TextField",
-    icon: MdTextFields,
-  },
-  designerComponent: DesignerComponent,
-  propertiesElement: PropertiesComponent,
-  formComponent: FormComponent,
+const propertiesSchema = z.object({
+  label: z.string().min(2).max(50),
+  helperText: z.string().max(200),
+  required: z.boolean().default(false),
+  placeHolder: z.string().max(50),
+})
+
+export const NumberFieldFormElement: FormElement = {
+  type,
   construct: (id: string) => ({
     id,
-    type: "TextField",
+    type,
     extraAttributes,
   }),
+  designerBtnElement: {
+    icon: Bs123,
+    label: "Number Field",
+  },
+  designerComponent: DesignerComponent,
+  formComponent: FormComponent,
+  propertiesElement: PropertiesComponent,
 }
+
 type CustomInstance = FormElementInstance & {
   extraAttributes: typeof extraAttributes
 }
 
-// ----------------------------------------
+function DesignerComponent({
+  elementInstance,
+}: {
+  elementInstance: FormElementInstance
+}) {
+  const element = elementInstance as CustomInstance
+  const { label, required, placeHolder, helperText } = element.extraAttributes
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label>
+        {label}
+        {required && "*"}
+      </Label>
+      <Input readOnly disabled type="number" placeholder={placeHolder} />
+      {helperText && (
+        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+      )}
+    </div>
+  )
+}
+
 function FormComponent({
   elementInstance,
 }: {
   elementInstance: FormElementInstance
+  submitValue?: SubmitFunction
+  isInvalid?: boolean
+  defaultValue?: string
 }) {
   const element = elementInstance as CustomInstance
 
@@ -69,6 +106,7 @@ function FormComponent({
         {required && "*"}
       </Label>
       <Input
+        type="number"
         className={cn(error && "border-red-500")}
         placeholder={placeHolder}
         {...methods.register(formId, {
@@ -94,40 +132,7 @@ function FormComponent({
   )
 }
 
-// -----------------------------------------
-
-function DesignerComponent({
-  elementInstance,
-}: {
-  elementInstance: FormElementInstance
-}) {
-  const {
-    extraAttributes: { helperText, required, label, placeHolder },
-  } = elementInstance as CustomInstance
-
-  return (
-    <div className="flex flex-col gap-2 w-full ">
-      <Label>
-        {label}
-        {required && "*"}
-      </Label>
-      <Input readOnly disabled placeholder={placeHolder} />
-      {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
-      )}
-    </div>
-  )
-}
-
-const propertiesSchema = z.object({
-  label: z.string().min(2).max(50),
-  helperText: z.string().max(200),
-  required: z.boolean().default(false),
-  placeHolder: z.string().max(50),
-})
-
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>
-
 function PropertiesComponent({
   elementInstance,
 }: {
